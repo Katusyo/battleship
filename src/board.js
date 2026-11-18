@@ -1,5 +1,5 @@
-class Board {
+class Gameboard {
 
 }
 
-export default Board;
+export default Gameboard;
