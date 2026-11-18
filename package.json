@@ -4,7 +4,7 @@
   "description": "Strategy type guessing game played on a ruled grid",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,7 @@
   "homepage": "https://github.com/Katusyo/battleship#readme",
   "devDependencies": {
     "@babel/preset-env": "^7.29.14",
+    "jest": "^30.5.2",
     "webpack": "^5.112.2",
     "webpack-cli": "^7.3.1"
   },
