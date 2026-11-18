@@ -1,3 +1,5 @@
+import Ship from "./battleship.js";
+
 class Gameboard {
 
 }

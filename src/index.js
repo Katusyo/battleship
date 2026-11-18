@@ -1,4 +1,4 @@
-import Ship from "./basttleship.js";
+import Ship from "./battleship.js";
 import Gameboard from "./board.js";
 
 const ship = new Ship();
