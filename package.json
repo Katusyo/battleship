@@ -1,0 +1,29 @@
+{
+  "name": "battleship",
+  "version": "1.0.0",
+  "description": "Strategy type guessing game played on a ruled grid",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Katusyo/battleship.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Katusyo/battleship/issues"
+  },
+  "homepage": "https://github.com/Katusyo/battleship#readme",
+  "devDependencies": {
+    "@babel/preset-env": "^7.29.14",
+    "webpack": "^5.112.2",
+    "webpack-cli": "^7.3.1"
+  },
+  "dependencies": {
+    "html-webpack-plugin": "^5.6.8"
+  }
+}
