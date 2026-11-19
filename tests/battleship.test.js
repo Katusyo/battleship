@@ -5,6 +5,7 @@ import Gameboard from "../src/board.js";
 describe("Ship", () => {
     test("starts with 0 hits and is not sunk", () => {
         const ship = new Ship(3);
+
         expect(ship.length).toBe(3);
         expect(ship.hits).toBe(0);
         expect(ship.isSunk()).toBe(false);
@@ -13,6 +14,7 @@ describe("Ship", () => {
     test("hit() increases hits by 1", () => {
         const ship = new Ship(3);
         ship.hit();
+
         expect(ship.hits).toBe(1);
     });
 
@@ -20,6 +22,7 @@ describe("Ship", () => {
         const ship = new Ship(3);
         ship.hit();
         ship.hit();
+
         expect(ship.isSunk()).toBe(false);
     });
 
@@ -28,6 +31,7 @@ describe("Ship", () => {
         ship.hit();
         ship.hit();
         ship.hit();
+
         expect(ship.isSunk()).toBe(true);
     });
 
@@ -36,8 +40,52 @@ describe("Ship", () => {
         const b = new Ship(2);
         a.hit();
         a.hit();
+
         expect(a.isSunk()).toBe(true);
         expect(b.hits).toBe(0);
         expect(b.isSunk()).toBe(false);
+    });
+})
+
+describe("Board placement", () => {
+    test("places a ship horizontally", () => {
+        const board = new Gameboard();
+        const ship = new Ship(3);
+
+        expect(board.placeShip(ship, [0, 0], "horizontal")).toBe(true);
+        expect(board.receiveAttack([0, 0])).toBe("hit");
+        expect(board.receiveAttack([0, 1])).toBe("hit");
+        expect(board.receiveAttack([0, 2])).toBe("hit");
+    });
+
+    test("places a ship vertically", () => {
+        const board = new Gameboard();
+        const ship = new Ship(3);
+
+        expect(board.placeShip(ship, [0, 0], "vertical")).toBe(true);
+        expect(board.receiveAttack([0, 0])).toBe("hit");
+        expect(board.receiveAttack([1, 0])).toBe("hit");
+        expect(board.receiveAttack([2, 0])).toBe("hit");
+    });
+
+    test("rejects a ship that runs off the right side of the board", () => {
+        const board = new Gameboard();
+        const ship = new Ship(3);
+
+        expect(board.placeShip(ship, [0, 8], "horizontal")).toBe(false);
+    });
+
+    test("rejects a ship that runs off the bottom of the board", () => {
+        const board = new Gameboard();
+        const ship = new Ship(3);
+
+        expect(board.placeShip(ship, [8, 0], "vertical")).toBe(false);
+    });
+
+    test("rejects a ship that overlaps another ship", () => {
+        const board = new Gameboard();
+        board.placeShip(new Ship(3), [0, 0], "vertical");
+
+        expect(board.placeShip(new Ship(3), [1, 0], "horizontal")).toBe(false);
     });
 })

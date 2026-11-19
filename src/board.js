@@ -26,7 +26,9 @@ class Gameboard {
         return x >= 0 && x < this.size && y >= 0 && y < this.size;
     }
 
-    placeShip(ship, startPosition, direction = "hoizontal") {
+    placeShip(ship, startPosition, direction = "horizontal") {
+        if (!Array.isArray(startPosition)) return false;
+
         const [startX, startY] = startPosition;
         const positions = [];
 
@@ -62,7 +64,7 @@ class Gameboard {
         const target = this.board[x][y];
 
         if (target instanceof Ship) {
-            target.hit;
+            target.hit();
             return "hit";
         }
 
