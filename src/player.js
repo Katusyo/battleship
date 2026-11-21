@@ -18,7 +18,7 @@ class Player {
     }
 
     hasLost() {
-        return this.gameboard.ships.every(ship => ship.isSunk());
+        return this.gameboard.sunkShips();
     }
 }
 
