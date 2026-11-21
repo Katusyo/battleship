@@ -28,6 +28,9 @@ class Gameboard {
 
     placeShip(ship, startPosition, direction = "horizontal") {
         if (!Array.isArray(startPosition)) return false;
+        if (!["horizontal", "vertical"].includes(direction)) {
+            return false;
+        }
 
         const [startX, startY] = startPosition;
         const positions = [];
