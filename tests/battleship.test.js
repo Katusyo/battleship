@@ -89,3 +89,50 @@ describe("Board placement", () => {
         expect(board.placeShip(new Ship(3), [1, 0], "horizontal")).toBe(false);
     });
 })
+
+describe("Attacks and game overs", () => {
+    test("records missed attacks properly", () => {
+        const board = new Gameboard();
+        board.placeShip(new Ship(2), [0, 0], "horizontal");
+
+        expect(board.receiveAttack([5, 5])).toBe("miss");
+        expect(board.receiveAttack([9, 9])).toBe("miss");
+        expect(board.missedAttacks).toEqual([[5, 5], [9, 9]]);
+    });
+
+    test("prevents attacking the same coordinates twice", () => {
+        const board = new Gameboard();
+        const ship = new Ship(3);
+        board.placeShip(ship, [0, 0], "horizontal");
+
+        expect(board.receiveAttack([0, 0])).toBe("hit");
+        expect(board.receiveAttack([0, 0])).toBe(false);
+        expect(ship.hits).toBe(1);
+
+        expect(board.receiveAttack([5, 5])).toBe("miss");
+        expect(board.receiveAttack([5, 5])).toBe(false);
+        expect(board.missedAttacks).toHaveLength(1);
+    });
+
+    test("tracks all ships and reports when all are sunk", () => {
+        const board = new Gameboard();
+        const battleship = new Ship(2);
+        const submarine = new Ship(3);
+
+        board.placeShip(battleship, [0, 0], "horizontal");
+        board.placeShip(submarine, [7, 9], "vertical");
+
+        expect(board.sunkShips()).toBe(false);
+
+        board.receiveAttack([0, 0]);
+        board.receiveAttack([0, 1]);
+        expect(battleship.isSunk()).toBe(true);
+        expect(board.sunkShips()).toBe(false);
+
+        board.receiveAttack([7, 9]);
+        board.receiveAttack([8, 9]);
+        board.receiveAttack([9, 9]);
+        expect(submarine.isSunk()).toBe(true);
+        expect(board.sunkShips()).toBe(true);
+    });
+})

@@ -69,11 +69,11 @@ class Gameboard {
         }
 
         this.missedAttacks.push(position);
-        return "miss"
+        return "miss";
     }
 
     sunkShips() {
-        return this.ships.every((ship) => ship.isSunk());
+        return this.ships.length > 0 && this.ships.every((ship) => ship.isSunk());
     }
 }
 
