@@ -1,6 +1,22 @@
 import { describe, expect, test } from "@jest/globals";
+import Player from "../src/player.js";
 import Ship from "../src/battleship.js";
 import Gameboard from "../src/board.js";
+
+function placeAllShips(player) {
+    player.ships.forEach((ship, row) => {
+        const placed = player.gameboard.placeShip(ship, [row, 0], "horizontal");
+        if(!placed) throw new Error(`Failed to place ship on row ${row}`);
+    });
+}
+
+function sinkAllShips(player) {
+    player.ships.forEach((ship, row) => {
+        for (let col = 0; col < ship.length; col++) {
+            player.gameboard.receiveAttack([row, col]);
+        }
+    });
+}
 
 describe("Ship", () => {
     test("starts with 0 hits and is not sunk", () => {
@@ -45,7 +61,7 @@ describe("Ship", () => {
         expect(b.hits).toBe(0);
         expect(b.isSunk()).toBe(false);
     });
-})
+});
 
 describe("Board placement", () => {
     test("places a ship horizontally", () => {
@@ -88,7 +104,7 @@ describe("Board placement", () => {
 
         expect(board.placeShip(new Ship(3), [1, 0], "horizontal")).toBe(false);
     });
-})
+});
 
 describe("Attacks and game overs", () => {
     test("records missed attacks properly", () => {
@@ -135,4 +151,102 @@ describe("Attacks and game overs", () => {
         expect(submarine.isSunk()).toBe(true);
         expect(board.sunkShips()).toBe(true);
     });
-})
+});
+
+describe("Player creation",() => {
+    test("stores player name and sets isComputer's defaul to false", () => {
+        const player = new Player("PL1");
+
+        expect(player.name).toBe("PL1");
+        expect(player.isComputer).toBe(false);
+    });
+
+    test("marks the computer player when isComputer is true", () => {
+        const cpu = new Player("CPU",true);
+
+        expect(cpu.isComputer).toBe(true);
+    });
+
+    test("player and computer have their own gameboard", () => {
+        const player = new Player("PL1");
+
+        expect(player.gameboard).toBeInstanceOf(Gameboard);
+    });
+
+    test("two players have their own board instances", () => {
+        const human = new Player("PL1");
+        const cpu = new Player("CPU", true);
+
+        expect(human.gameboard).not.toBe(cpu.gameboard);
+    });
+
+    test("starts with your own fleet of ships", () => {
+        const player = new Player("PL1");
+        
+        expect(player.ships).toHaveLength(5);
+    });
+
+    test("fleet ship lengths are the proper length", () => {
+        const player = new Player("PL1");
+        const lengths = player.ships.map((ship) => ship.length);
+
+        expect(lengths).toEqual([4, 5, 3, 2, 3]);
+    });
+
+    test("both players do not share ship instances", () => {
+        const human = new Player("PL1");
+        const cpu = new Player("CPU", true);
+        human.ships[0].hit();
+        
+        expect(cpu.ships[0].hits).toBe(0);
+    });
+});
+
+describe("Player boards in play", () => {
+    test("attacks on one player's board does not affect the other player's board", () => {
+        const human = new Player("PL1");
+        const cpu = new Player("CPU", true);
+        placeAllShips(human);
+        placeAllShips(cpu);
+
+        sinkAllShips(human);
+
+        expect(human.hasLost()).toBe(true);
+        expect(cpu.hasLost()).toBe(false);
+    });
+});
+
+describe("A player has lost the game", () => {
+    test("is false before any ships have been placed", () => {
+        const player = new Player("PL1");
+
+        expect(player.hasLost()).toBe(false);
+    });
+
+    test("is false after all ships have been placed but none have been sunk", () => {
+        const player = new Player("PL1");
+        placeAllShips(player);
+
+        expect(player.hasLost()).toBe(false);
+    });
+
+    test("is false when some ships are sunk but not all are sunk", () => {
+        const player = new Player("PL1");
+        placeAllShips(player);
+        const firstShip = player.ships[0];
+        for (let col = 0; col < firstShip.length; col++) {
+            player.gameboard.receiveAttack([0, col]);
+        }
+
+        expect(firstShip.isSunk()).toBe(true);
+        expect(player.hasLost()).toBe(false);
+    });
+
+    test("is true when every ship has been sunk", () => {
+        const player = new Player("PL1");
+        placeAllShips(player);
+        sinkAllShips(player);
+
+        expect(player.hasLost()).toBe(true);
+    });
+});
