@@ -1,16 +1,15 @@
-import Ship from "./battleship.js";
-import Gameboard from "./board.js";
 import Player from "./player.js";
 import "./styles.css";
 
-const ship = new Ship();
-const board = new Gameboard();
+
 const boardContainer = document.getElementById("board");
 const statusText = document.getElementById("status");
 
 const human = new Player("PL1");
 const computer = new Player("CPU", true);
 const rotateButton = document.getElementById("rotate");
+const playAgainButton = document.getElementById("play-again");
+playAgainButton.style.display = "none";
 
 const humanGrid = document.getElementById("human-grid");
 const computerGrid = document.getElementById("computer-grid");
@@ -53,7 +52,7 @@ let direction = "horizontal";
 function updateStatus() {
     if (phase === "placing") {
         const ship = human.ships[currentShipIndex];
-        statusText.textContent = `Place ship ${currentShipIndex + 1} of ${human.ships.length} (lenth ${ship.length} - direction: ${direction}`;
+        statusText.textContent = `Place ship ${currentShipIndex + 1} of ${human.ships.length} (length ${ship.length} - direction: ${direction}`;
     } else if (phase === "confirming") {
         statusText.textContent = "All ships placed! Start the game, or reset and place them again.";
     } else {
@@ -101,7 +100,6 @@ function placeShipsRandomly(player) {
     });
 }
 
-let computerPlaced = false;
 let gameOver = false;
 
 function computerTurn() {
@@ -144,6 +142,12 @@ computerGrid.addEventListener("click", (event) => {
     }
 });
 
+function endGame(message) {
+    gameOver = true;
+    statusText.textContent = message;
+    playAgainButton.style.display ="block";
+}
+
 startButton.addEventListener("click", () => {
     if (phase !== "confirming")
         return;
@@ -163,7 +167,21 @@ resetButton.addEventListener("click", () => {
     renderBoard(human, humanGrid, true);
     updateStatus();
 });
-//human.gameboard.placeShip(human.ships[0], [0, 0], "horizontal");
+
+playAgainButton.addEventListener("click", () => {
+    human.reset();
+    computer.reset();
+    currentShipIndex = 0;
+    direction = "horizontal";
+    gameOver = false;
+    phase = "placing";
+    playAgainButton.style.display = "none";
+    renderBoard(human, humanGrid, true);
+    renderBoard(computer, computerGrid, false);
+    updateStatus();
+});
 
 renderBoard(human, humanGrid, true);
 renderBoard(computer, computerGrid, false);
+
+updateStatus();

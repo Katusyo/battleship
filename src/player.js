@@ -20,6 +20,13 @@ class Player {
     hasLost() {
         return this.gameboard.sunkShips();
     }
+
+    reset() {
+        this.gameboard = new Gameboard();
+        this.ships = Fleet.map(({length}) => new Ship(length));
+    }
 }
+
+
 
 export default Player;
