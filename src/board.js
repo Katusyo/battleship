@@ -78,6 +78,13 @@ class Gameboard {
     sunkShips() {
         return this.ships.length > 0 && this.ships.every((ship) => ship.isSunk());
     }
+
+    reset() {
+        this.board = this.createBoard();
+        this.ships = [];
+        this.missedAttacks = [];
+        this.attacked = new Set();
+    }
 }
 
 export default Gameboard;
