@@ -20,6 +20,32 @@
     cursor: pointer;
 }
 
+#ship-dock {
+    min-height: 32px;
+    margin: 8px 0;
+}
+
+.ship-piece {
+    display: flex;
+    gap: 2px;
+    width: fit-content;
+    cursor: grab;
+}
+
+.ship-piece.vertical {
+    flex-direction: column;
+}
+
+.ship-piece.block {
+    width: 30px;
+    height: 30px;
+    background: grey;
+}
+
+.cell.preview{
+    background: lightseagreen
+}
+
 .cell.ship { background-color: grey; }
 .cell.hit { background-color: red; }
 .cell.miss { background-color: white; }

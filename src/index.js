@@ -7,6 +7,7 @@ const statusText = document.getElementById("status");
 
 const human = new Player("PL1");
 const computer = new Player("CPU", true);
+const shipDock = document.getElementById("ship-dock");
 const rotateButton = document.getElementById("rotate");
 const playAgainButton = document.getElementById("play-again");
 playAgainButton.style.display = "none";
@@ -63,29 +64,93 @@ function updateStatus() {
 rotateButton.addEventListener("click", () => {
     direction = direction === "horizontal" ? "vertical" : "horizontal";
     updateStatus();
+    renderDock();
 });
 
-humanGrid.addEventListener("click", (event) => {
-    const cell = event.target.closest(".cell");
-    if (!cell || currentShipIndex >= human.ships.length)
+function tryPlace(x, y) {
+    if (currentShipIndex >= human.ships.length)
         return;
 
     const ship = human.ships[currentShipIndex];
-    const placed = human.gameboard.placeShip(
-        ship,
-        [Number(cell.dataset.x), Number(cell.dataset.y)],
-        direction
-    );
+    const placed = human.gameboard.placeShip(ship,[x, y], direction);
 
-    if(placed) {
+    if (placed) {
         currentShipIndex++;
         if (currentShipIndex >= human.ships.length) {
-            phase = "confirming";
+            phase = "confiriming";
             confirmControls.style.display = "block";
         }
         renderBoard(human, humanGrid, true);
+        renderDock();
         updateStatus();
     }
+}
+
+humanGrid.addEventListener("click", (event) => {
+    const cell = event.target.closest(".cell");
+    if (!cell)
+        return;
+    tryPlace(Number(cell.dataset.x), Number(cell.dataset.y));
+});
+
+function renderDock() {
+    shipDock.innerHTML = "";
+    if (currentShipIndex >= human.ships.length)
+        return;
+
+    const ship = human.ships[currentShipIndex];
+    const piece = document.createElement("div");
+    piece.classList.add("ship-piece");
+    if(direction === "vertical")
+        piece.classList.add("vertical");
+    piece.draggable = true;
+
+    for (let i = 0; i < ship.length; i++) {
+        const block = document.createElement("div");
+        block.classList.add("block");
+        piece.appendChild(block);
+    }
+
+    piece.addEventListener("dragstart", (event) => {
+        event.dataTransfer.setData("text/plain", "ship");
+    });
+    piece.addEventListener("dragend", clearPreview);
+    shipDock.appendChild(piece);
+}
+
+function clearPreview() {
+    humanGrid.querySelectorAll(".preview").forEach((c) => c.classList.remove("preview"));
+}
+
+humanGrid.addEventListener("dragover", (event) => {
+    if (currentShipIndex >= human.ships.length)
+        return;
+    event.preventDefault();
+
+    const cell = event.target.closest(".cell");
+    if(!cell)
+        return;
+
+    clearPreview();
+    const ship = human.ships[currentShipIndex];
+    const x = Number(cell.dataset.x);
+    const y = Number(cell.dataset.y);
+    for (let i = 0; i < ship.length; i++) {
+        const cx = direction === "horizontal" ? x : x + i;
+        const cy = direction === "horizontal" ? y + i : y;
+        if (cx < 10 && cy < 10)
+            humanGrid.children[cx * 10 + cy].classList.add("preview");
+    }
+});
+
+humanGrid.addEventListener("drop", (event) => {
+    event.preventDefault();
+    clearPreview();
+
+    const cell = event.target.closest(".cell");
+    if (!cell)
+        return;
+    tryPlace(Number(cell.dataset.x), Number(cell.dataset.y));
 });
 
 function placeShipsRandomly(player) {
@@ -150,6 +215,7 @@ function computerTurn() {
     }
 
     renderBoard(human, humanGrid, true);
+    renderDock();
 }
 
 computerGrid.addEventListener("click", (event) => {
@@ -203,6 +269,7 @@ resetButton.addEventListener("click", () => {
     phase = "placing";
     confirmControls.style.display = "none";
     renderBoard(human, humanGrid, true);
+    renderDock();
     updateStatus();
 });
 
@@ -217,6 +284,7 @@ playAgainButton.addEventListener("click", () => {
     playAgainButton.style.display = "none";
     renderBoard(human, humanGrid, true);
     renderBoard(computer, computerGrid, false);
+    renderDock();
     updateStatus();
 });
 
