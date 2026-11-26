@@ -129,24 +129,21 @@ computerGrid.addEventListener("click", (event) => {
     renderBoard(computer, computerGrid, false);
 
     if (computer.hasLost()) {
-        gameOver = true;
-        statusText.textContent = "You win! All enemy ships sunk.";
+        endGame("You win! All enemy ships sunk.");
         return;
     }
 
     computerTurn();
 
     if (human.hasLost()) {
-        gameOver = true;
-        statusText.textContent = "You lose! All your ships have sunk.";
+        endGame("You lose! All your ships have sunk.");
     }
 });
 
-function endGame() {
+function endGame(message) {
     gameOver = true;
-    statusText.textContent = "You win! All enemy ships sunk.";
+    statusText.textContent = message;
     playAgainButton.style.display ="block";
-    return;
 }
 
 startButton.addEventListener("click", () => {
