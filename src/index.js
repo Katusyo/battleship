@@ -102,13 +102,53 @@ function placeShipsRandomly(player) {
 
 let gameOver = false;
 
+let targetQueue = [];
+
+function queueNeighbours(x, y) {
+    const size = human.gameboard.board.length;
+    const neighbours = [
+        [x - 1, y],
+        [x + 1, y],
+        [x, y - 1],
+        [x, y + 1],
+    ];
+    neighbours.forEach(([nx, ny]) => {
+        if (nx < 0 || nx >= size || ny < 0 || ny >= size)
+            return;
+        if (human.gameboard.attacked.has(`${nx},${ny}`))
+            return;
+        if (targetQueue.some(([qx, qy]) => qx === nx && qy === ny))
+            return;
+        targetQueue.push([nx, ny]);
+    });
+}
+
 function computerTurn() {
-    let attacked = false;
-    while (!attacked) {
-        const x = Math.floor(Math.random() * 10);
-        const y = Math.floor(Math.random() * 10);
-        attacked = human.gameboard.receiveAttack([x, y]) !== false;
+    let x, y, result;
+
+    if (targetQueue.length > 0) {
+        [x, y] = targetQueue.shift();
+        result = human.gameboard.receiveAttack([x, y]);
     }
+    
+    if (result === undefined || result === false) {
+        result = false;
+        while (result === false) {
+            x = Math.floor(Math.random() * 10);
+            y = Math.floor(Math.random() * 10);
+            result = human.gameboard.receiveAttack([x, y]);
+        }
+    }
+
+    if (result === "hit") {
+        const ship = human.gameboard.board[x][y];
+        if (ship.isSunk()) {
+            targetQueue = [];
+        } else {
+            queueNeighbours(x, y);
+        }
+    }
+
     renderBoard(human, humanGrid, true);
 }
 
