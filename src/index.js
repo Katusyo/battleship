@@ -207,6 +207,7 @@ resetButton.addEventListener("click", () => {
 });
 
 playAgainButton.addEventListener("click", () => {
+    targetQueue = [];
     human.reset();
     computer.reset();
     currentShipIndex = 0;
