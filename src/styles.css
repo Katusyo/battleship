@@ -36,7 +36,7 @@
     flex-direction: column;
 }
 
-.ship-piece.block {
+.ship-piece .block {
     width: 30px;
     height: 30px;
     background: grey;

@@ -77,7 +77,7 @@ function tryPlace(x, y) {
     if (placed) {
         currentShipIndex++;
         if (currentShipIndex >= human.ships.length) {
-            phase = "confiriming";
+            phase = "confirming";
             confirmControls.style.display = "block";
         }
         renderBoard(human, humanGrid, true);
