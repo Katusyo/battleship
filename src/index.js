@@ -142,10 +142,11 @@ computerGrid.addEventListener("click", (event) => {
     }
 });
 
-function endGame(message) {
+function endGame() {
     gameOver = true;
-    statusText.textContent = message;
+    statusText.textContent = "You win! All enemy ships sunk.";
     playAgainButton.style.display ="block";
+    return;
 }
 
 startButton.addEventListener("click", () => {
