@@ -71,7 +71,7 @@ function updateStatus() {
     } else if (phase === "confirming") {
         statusText.textContent = "All ships placed! Start the game, or reset and place them again.";
     } else if (phase === "playing") {
-        statusText.textContent = mode === "2P"
+        statusText.textContent = mode === "2p"
         ? `${turnPlayer.name}'s turn - click the enemy board to attack.`
         : "Your turn - click the enemy board to attack.";
     }
@@ -241,6 +241,11 @@ computerGrid.addEventListener("click", (event) => {
     if (!cell)
         return;
 
+    if (mode === "2p") {
+        twoPlayerTurn(cell);
+        return;
+    }
+
     const result = computer.gameboard.receiveAttack([
         Number(cell.dataset.x),
         Number(cell.dataset.y),
@@ -275,6 +280,7 @@ function twoPlayerTurn(cell) {
 
     if (defender.hasLost()) {
         endGame(`${turnPlayer.name} wins!`);
+        return;
     }
 
     phase = "switching";
@@ -330,6 +336,15 @@ startButton.addEventListener("click", () => {
             phase = "placing";
             renderBoard(player2, humanGrid, true);
             renderBoard(human, computerGrid, false);
+            renderDock();
+            updateStatus();
+        });
+    } else {
+        showSwitch(human, () => {
+            turnPlayer = human;
+            phase = "playing";
+            renderBoard(human, humanGrid, true);
+            renderBoard(player2, computerGrid, false);
             updateStatus();
         });
     }
@@ -351,6 +366,7 @@ playAgainButton.addEventListener("click", () => {
     targetQueue = [];
     human.reset();
     computer.reset();
+    player2.reset();
     currentShipIndex = 0;
     direction = "horizontal";
     gameOver = false;
