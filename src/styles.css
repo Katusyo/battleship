@@ -46,6 +46,23 @@
     background: lightseagreen
 }
 
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgb(0, 0, 0);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    z-index: 10;
+}
+
+#switch-screen {
+    display: none;
+}
+
 .cell.ship { background-color: grey; }
 .cell.hit { background-color: red; }
 .cell.miss { background-color: white; }

@@ -20,7 +20,19 @@ const resetButton = document.getElementById("reset");
 const confirmControls = document.getElementById("confirm-controls");
 confirmControls.style.display = "none";
 
-let phase = "placing";
+const modeScreen = document.getElementById("mode-screen");
+const mode1pButton = document.getElementById("mode-1p");
+const mode2pButton = document.getElementById("mode-2p");
+const switchScreen = document.getElementById("switch-screen");
+const switchText = document.getElementById("switch-text");
+const switchReadyButton = document.getElementById("switch-ready");
+
+const player2 = new Player("PL2");
+let mode = null;
+let activePlacer = human;
+let turnPlayer = human;
+
+let phase = "menu";
 
 function renderBoard(player, gridElement, showShips) {
     gridElement.innerHTML ="";
@@ -51,13 +63,17 @@ let currentShipIndex = 0;
 let direction = "horizontal";
 
 function updateStatus() {
-    if (phase === "placing") {
-        const ship = human.ships[currentShipIndex];
-        statusText.textContent = `Place ship ${currentShipIndex + 1} of ${human.ships.length} (length ${ship.length} - direction: ${direction}`;
+    if (phase === "menu") {
+        statusText.textContent = "Choose 1 Player or 2 Players to start.";
+    } else if (phase === "placing") {
+        const ship = activePlacer.ships[currentShipIndex];
+        statusText.textContent = `Place ship ${currentShipIndex + 1} of ${activePlacer.ships.length} (length ${ship.length} - direction): ${direction}`;
     } else if (phase === "confirming") {
         statusText.textContent = "All ships placed! Start the game, or reset and place them again.";
-    } else {
-        statusText.textContent = "Your turn - click the enemy board to attack.";
+    } else if (phase === "playing") {
+        statusText.textContent = mode === "2P"
+        ? `${turnPlayer.name}'s turn - click the enemy board to attack.`
+        : "Your turn - click the enemy board to attack.";
     }
 }
 
@@ -68,11 +84,11 @@ rotateButton.addEventListener("click", () => {
 });
 
 function tryPlace(x, y) {
-    if (currentShipIndex >= human.ships.length)
+    if (phase !== "placing" || currentShipIndex >= activePlacer.ships.length)
         return;
 
-    const ship = human.ships[currentShipIndex];
-    const placed = human.gameboard.placeShip(ship,[x, y], direction);
+    const ship = activePlacer.ships[currentShipIndex];
+    const placed = activePlacer.gameboard.placeShip(ship,[x, y], direction);
 
     if (placed) {
         currentShipIndex++;
@@ -80,7 +96,7 @@ function tryPlace(x, y) {
             phase = "confirming";
             confirmControls.style.display = "block";
         }
-        renderBoard(human, humanGrid, true);
+        renderBoard(activePlacer, humanGrid, true);
         renderDock();
         updateStatus();
     }
@@ -214,7 +230,7 @@ function computerTurn() {
         }
     }
 
-    renderBoard(human, humanGrid, true);
+    renderBoard(activePlacer, humanGrid, true);
     renderDock();
 }
 
@@ -246,6 +262,51 @@ computerGrid.addEventListener("click", (event) => {
     }
 });
 
+function twoPlayerTurn(cell) {
+    const defender = turnPlayer === human ? player2 : human;
+    const result = defender.gameboard.receiveAttack([
+        Number(cell.dataset.x),
+        Number(cell.dataset.y),
+    ]);
+    if (result === false)
+        return;
+
+    renderBoard(defender, computerGrid, false);
+
+    if (defender.hasLost()) {
+        endGame(`${turnPlayer.name} wins!`);
+    }
+
+    phase = "switching";
+    setTimeout(() => {
+        showSwitch(defender, () => {
+            turnPlayer = defender;
+            const newDefender = turnPlayer === human ? player2 : human;
+            phase = "playing";
+            renderBoard(turnPlayer, humanGrid, true);
+            renderBoard(newDefender, computerGrid, false);
+            updateStatus();
+        });
+    }, 2000);
+}
+
+let switchCallback = null;
+
+function showSwitch(nextPlayer, onReady) {
+    phase = "switching";
+    switchText.textContent = `Pass the device to ${nextPlayer.name}`;
+    switchScreen.style.display = "flex";
+    switchCallback = onReady;
+}
+
+switchReadyButton.addEventListener("click", () => {
+    switchScreen.style.display = "none";
+    const callback = switchCallback;
+    switchCallback = null;
+    if (callback)
+        callback();
+});
+
 function endGame(message) {
     gameOver = true;
     statusText.textContent = message;
@@ -255,20 +316,33 @@ function endGame(message) {
 startButton.addEventListener("click", () => {
     if (phase !== "confirming")
         return;
-    placeShipsRandomly(computer);
-    phase = "playing";
     confirmControls.style.display = "none";
-    updateStatus();
+
+    if (mode === "1p") {
+        placeShipsRandomly(computer);
+        phase = "playing";
+        updateStatus();
+    } else if (activePlacer === human) {
+        showSwitch(player2, () => {
+            activePlacer = player2;
+            currentShipIndex = 0;
+            direction = "horizontal";
+            phase = "placing";
+            renderBoard(player2, humanGrid, true);
+            renderBoard(human, computerGrid, false);
+            updateStatus();
+        });
+    }
 });
 
 resetButton.addEventListener("click", () => {
     if (phase !== "confirming")
         return;
-    human.gameboard.reset();
+    activePlacer.gameboard.reset();
     currentShipIndex = 0;
     phase = "placing";
     confirmControls.style.display = "none";
-    renderBoard(human, humanGrid, true);
+    renderBoard(activePlacer, humanGrid, true);
     renderDock();
     updateStatus();
 });
@@ -280,15 +354,34 @@ playAgainButton.addEventListener("click", () => {
     currentShipIndex = 0;
     direction = "horizontal";
     gameOver = false;
-    phase = "placing";
+    activePlacer = human;
+    turnPlayer = human;
+    mode = null;
+    phase = "menu";
     playAgainButton.style.display = "none";
     renderBoard(human, humanGrid, true);
     renderBoard(computer, computerGrid, false);
     renderDock();
+    modeScreen.style.display = "flex";
+    updateStatus();
+});
+
+mode1pButton.addEventListener("click", () => {
+    mode = "1p";
+    modeScreen.style.display = "none";
+    phase = "placing";
+    updateStatus();
+});
+
+mode2pButton.addEventListener("click", () => {
+    mode = "2p";
+    modeScreen.style.display = "none";
+    phase = "placing";
     updateStatus();
 });
 
 renderBoard(human, humanGrid, true);
 renderBoard(computer, computerGrid, false);
+renderDock();
 
 updateStatus();
