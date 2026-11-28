@@ -1,3 +1,24 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    padding: 16px;
+}
+
+#status {
+    min-height: 24px;
+    margin: 8px 0;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+}
+
 .game-container {
     display: flex;
     gap: 40px;
@@ -12,6 +33,19 @@
     background-color: #d6d6d6;
 }
 
+button {
+    padding: 8px 16px;
+    font-size: 14px;
+    border: 1px solid #808080;
+    border-radius: 6px;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #e6e6e6;
+}
+
 .cell {
     width: 30px;
     height: 30px;
@@ -21,8 +55,11 @@
 }
 
 #ship-dock {
-    min-height: 32px;
+    height: 160px;
     margin: 8px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .ship-piece {
@@ -40,6 +77,47 @@
     width: 30px;
     height: 30px;
     background: grey;
+    border: 1px solid #ffffff;
+    border-radius: 2px;
+}
+
+#confirm-controls {
+    display: flex;
+    gap: 8px;
+    margin: 4px 0;
+}
+
+#play-again {
+    margin: 4px 0;
+}
+
+.game-container {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    margin-top: 8px;
+}
+
+.player-board h3 {
+    text-align: center;
+    margin: 8px 0;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(10, 30px);
+    grid-template-rows: repeat(10, 30px);
+    gap: 2px;
+    background-color: #6d6d6d;
+}
+
+.cell {
+    width: 30px;
+    height: 30px;
+    background-color: aqua;
+    border: 1px solid #ffffff;
+    border-radius: 2px;
+    cursor: pointer;
 }
 
 .cell.preview{
@@ -49,7 +127,7 @@
 .overlay {
     position: fixed;
     inset: 0;
-    background: rgb(0, 0, 0);
+    background: black;
     color: white;
     display: flex;
     flex-direction: column;
