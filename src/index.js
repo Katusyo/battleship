@@ -1,8 +1,6 @@
 import Player from "./player.js";
 import "./styles.css";
 
-
-const boardContainer = document.getElementById("board");
 const statusText = document.getElementById("status");
 
 const human = new Player("PL1");
